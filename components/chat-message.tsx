@@ -1,29 +1,16 @@
 'use client'
 
-import {User, Copy, CheckCheck} from 'lucide-react'
+import {User} from 'lucide-react'
 import {BotAvatar} from '@/components/bot-avatar'
 import {Message} from 'ai'
 import {GitHubProfileCard} from '@/components/github-profile-card'
 import ReactMarkdown from 'react-markdown'
-import {useState} from 'react'
+import {CodeBlock} from '@/components/code-block'
 
 export function ChatMessage({message}: {message: Message}) {
 	const {role, content, toolInvocations} = message
 	const hasToolCalls = toolInvocations && toolInvocations.length > 0
 	const isUserMessage = role === 'user'
-	const [copied, setCopied] = useState(false)
-
-	const handleCopy = async () => {
-		if (!content) return
-
-		try {
-			await navigator.clipboard.writeText(content)
-			setCopied(true)
-			setTimeout(() => setCopied(false), 2000) // Reset after 2 seconds
-		} catch (err) {
-			console.error('Failed to copy text: ', err)
-		}
-	}
 
 	return (
 		<div
@@ -44,27 +31,28 @@ export function ChatMessage({message}: {message: Message}) {
 				{/* Message bubble */}
 				<div
 					className={`rounded-2xl p-2 ${isUserMessage ? 'bg-black text-white' : 'bg-gray-50 text-black'} group relative`}>
-					{/* Copy button */}
-					{!isUserMessage && content && (
-						<div className="absolute right-2 top-2 opacity-0 transition-opacity group-hover:opacity-100">
-							<button
-								onClick={handleCopy}
-								className="flex items-center rounded p-1 hover:bg-gray-200"
-								title="Copy to clipboard">
-								{copied ? (
-									<CheckCheck className="h-4 w-4 text-green-600" />
-								) : (
-									<Copy className="h-4 w-4 text-gray-500" />
-								)}
-								<span className="sr-only">Copy</span>
-							</button>
-						</div>
-					)}
-
-					<p
-						className={`prose prose-l ${isUserMessage ? 'text-white' : undefined}`}>
-						{content && <ReactMarkdown>{content}</ReactMarkdown>}
-					</p>
+					<div
+						className={`prose prose-l max-w-none ${isUserMessage ? 'text-white' : undefined}`}>
+						{content && (
+							<ReactMarkdown
+								components={{
+									code({className, children, ...props}) {
+										const match = /language-(\w+)/.exec(className || '')
+										return match ? (
+											<CodeBlock language={match[1]}>
+												{String(children)}
+											</CodeBlock>
+										) : (
+											<code className={className} {...props}>
+												{children}
+											</code>
+										)
+									}
+								}}>
+								{content}
+							</ReactMarkdown>
+						)}
+					</div>
 
 					{/* Tool calls and results */}
 					{hasToolCalls && (
