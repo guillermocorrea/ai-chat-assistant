@@ -1,10 +1,10 @@
 import {clerkMiddleware, createRouteMatcher} from '@clerk/nextjs/server'
 
-const isPublicRoute = createRouteMatcher(['/chat'])
 // Match all routes except for the ones that start with /api/auth
+const isPrivateRoute = createRouteMatcher(['/chat'])
 
 export default clerkMiddleware(async (auth, req) => {
-	if (isPublicRoute(req)) {
+	if (isPrivateRoute(req)) {
 		// Skip authentication for Next.js data requests
 		await auth.protect()
 	}
