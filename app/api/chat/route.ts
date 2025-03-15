@@ -1,18 +1,20 @@
-import {createOpenAI} from '@ai-sdk/openai'
+import {createAzure} from '@ai-sdk/azure'
 import {streamText} from 'ai'
 import {z} from 'zod'
 
-const openai = createOpenAI({
-	apiKey: process.env.OPENAI_API_KEY
+const azure = createAzure({
+	resourceName: process.env.AZURE_OPENAI_RESOURCE_NAME,
+	apiKey: process.env.AZURE_OPENAI_API_KEY
 })
 
 export async function POST(req: Request) {
+	// This is being called from the useChat hook in the chat interface.
 	const {messages} = await req.json()
 
 	console.log('Received messages:', messages)
 
 	const result = streamText({
-		model: openai('gpt-4o'),
+		model: azure('gpt-4o-mini'),
 		messages,
 		system: `You are a helpful developer assistant specializing in web development and GitHub.
 
@@ -67,5 +69,10 @@ export async function POST(req: Request) {
 		}
 	})
 
-	return result.toDataStreamResponse()
+	return result.toDataStreamResponse({
+		getErrorMessage: (error) => {
+			console.error('Error in toDataStreamResponse:', error)
+			return JSON.stringify({error: 'Failed to process the request'})
+		}
+	})
 }

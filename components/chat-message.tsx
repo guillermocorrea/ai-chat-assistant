@@ -1,13 +1,29 @@
 'use client'
 
-import {User} from 'lucide-react'
+import {User, Copy, CheckCheck} from 'lucide-react'
 import {BotAvatar} from '@/components/bot-avatar'
 import {Message} from 'ai'
 import {GitHubProfileCard} from '@/components/github-profile-card'
+import ReactMarkdown from 'react-markdown'
+import {useState} from 'react'
 
 export function ChatMessage({message}: {message: Message}) {
 	const {role, content, toolInvocations} = message
 	const hasToolCalls = toolInvocations && toolInvocations.length > 0
+	const isUserMessage = role === 'user'
+	const [copied, setCopied] = useState(false)
+
+	const handleCopy = async () => {
+		if (!content) return
+
+		try {
+			await navigator.clipboard.writeText(content)
+			setCopied(true)
+			setTimeout(() => setCopied(false), 2000) // Reset after 2 seconds
+		} catch (err) {
+			console.error('Failed to copy text: ', err)
+		}
+	}
 
 	return (
 		<div
@@ -27,8 +43,28 @@ export function ChatMessage({message}: {message: Message}) {
 
 				{/* Message bubble */}
 				<div
-					className={`rounded-2xl p-4 ${role === 'user' ? 'bg-black text-white' : 'bg-gray-50 text-black'}`}>
-					{content && <p className="leading-relaxed">{content}</p>}
+					className={`rounded-2xl p-2 ${isUserMessage ? 'bg-black text-white' : 'bg-gray-50 text-black'} group relative`}>
+					{/* Copy button */}
+					{!isUserMessage && content && (
+						<div className="absolute right-2 top-2 opacity-0 transition-opacity group-hover:opacity-100">
+							<button
+								onClick={handleCopy}
+								className="flex items-center rounded p-1 hover:bg-gray-200"
+								title="Copy to clipboard">
+								{copied ? (
+									<CheckCheck className="h-4 w-4 text-green-600" />
+								) : (
+									<Copy className="h-4 w-4 text-gray-500" />
+								)}
+								<span className="sr-only">Copy</span>
+							</button>
+						</div>
+					)}
+
+					<p
+						className={`prose prose-l ${isUserMessage ? 'text-white' : undefined}`}>
+						{content && <ReactMarkdown>{content}</ReactMarkdown>}
+					</p>
 
 					{/* Tool calls and results */}
 					{hasToolCalls && (

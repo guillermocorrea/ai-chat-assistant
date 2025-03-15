@@ -10,7 +10,7 @@ import {Message} from 'ai'
 
 export function ChatInterface({
 	initialMessages = [],
-	title = ''
+	title = 'New chat'
 }: {
 	initialMessages?: Message[]
 	title?: string
@@ -25,7 +25,7 @@ export function ChatInterface({
 		reload
 	} = useChat({
 		initialMessages,
-		maxSteps: 5 // Enable multi-step tool execution
+		maxSteps: 2 // Enable multi-step tool execution
 	})
 
 	const messagesEndRef = useRef<HTMLDivElement>(null)

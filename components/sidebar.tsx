@@ -6,8 +6,7 @@ import {Logo} from '@/components/logo'
 // Static list of chat conversations for the sidebar navigation
 const chats = [
 	{id: '1', title: 'How to learn React'},
-	{id: '2', title: 'Explain quantum computing'},
-	{id: '3', title: 'Write a poem about coding'}
+	{id: '2', title: 'An example of js map function'}
 ]
 
 // Sidebar component that displays navigation and chat history
