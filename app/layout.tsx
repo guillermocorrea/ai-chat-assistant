@@ -29,7 +29,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
 		<ClerkProvider>
 			<html lang="en" suppressHydrationWarning>
 				<body className={`${inter.variable} font-sans antialiased`}>
-					<header className="flex h-16 items-center justify-end gap-4 p-4">
+					<header className="absolute right-0 p-4">
 						<SignedOut>
 							<SignInButton />
 							<SignUpButton />
